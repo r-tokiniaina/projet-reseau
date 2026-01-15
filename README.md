@@ -19,3 +19,12 @@ téléversement, la suppression, etc.) selon les permissions déjà définies au
 
 # Protocole
 Plus d’informations sur le protocole utilisé sont disponibles dans : [docs/protocole.md](docs/protocole.md).
+
+# Progression
+Plus d’informations sur les choses à faire sont disponibles dans : [docs/todo.md](docs/todo.md).
+
+En globalité, les choses à faire sont :
+- [x] Définition du protocole
+- [ ] Développement du serveur
+    - [ ] Écoute des transmissions
+- [ ] Développement d’une interface client
