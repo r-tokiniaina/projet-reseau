@@ -26,5 +26,4 @@ Plus d’informations sur les choses à faire sont disponibles dans : [docs/to
 En globalité, les choses à faire sont :
 - [x] Définition du protocole
 - [ ] Développement du serveur
-    - [ ] Écoute des transmissions
 - [ ] Développement d’une interface client
