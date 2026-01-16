@@ -37,7 +37,6 @@ Chaque ordinateur qui ont reçu (et compris) la requête précédente répond 
 {
   "response": "CONNECTED",
   "name": "Nom de l’utilisateur",
-  "permission": "rwd",
   "request-id": 1234567890,
   "response-id": 1244458147
 }
@@ -62,8 +61,8 @@ Le cible répond :
   "response": "SUCCESS",
   "path": "/path/vers/dossier",
   "files": [
-    { "name": "fichier1.txt", "type": "file" },
-    { "name": "fichier2.txt", "type": "file" }
+    { "name": "fichier1.txt", "type": "file", "permission": "rwd" },
+    { "name": "fichier2.txt", "type": "file", "permission": "rwd" }
   ],
   "request-id": 1241474395389,
   "response-id": 73219846345
