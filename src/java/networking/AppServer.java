@@ -13,7 +13,7 @@ public class AppServer implements Runnable, Closeable {
 
     private ServerSocket server;
     private int port;
-    private boolean running;
+    private volatile boolean running;
 
     public AppServer() {
         this.port = Settings.getInstance().getServerPort();
