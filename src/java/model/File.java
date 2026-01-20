@@ -1,6 +1,10 @@
 package model;
 
+import java.io.IOException;
+import java.util.HashSet;
 import java.util.Set;
+
+import logging.Log;
 
 public class File {
 
@@ -8,11 +12,17 @@ public class File {
     public enum Permission {READ, WRITE, DELETE}
 
     private String name;
+    private String path;
     private File parent;
     private Type type;
     private Set<Permission> permissions;
 
     public File() {
+        this.name = "";
+        this.path = "/";
+        this.parent = null;
+        this.type = Type.DIRECTORY;
+        this.permissions = new HashSet<>();
     }
 
     public String getName() {
@@ -23,12 +33,17 @@ public class File {
         this.name = name;
     }
 
+    public String getPath() {
+        return path;
+    }
+
     public File getParent() {
         return parent;
     }
 
     public void setParent(File parent) {
         this.parent = parent;
+        this.path = parent.getPath() + parent.getName() + "/";
     }
 
     public Type getType() {
@@ -49,5 +64,52 @@ public class File {
 
     public void setPermissions(Set<Permission> permissions) {
         this.permissions = permissions;
+    }
+
+    public void addPermission(Permission permission) {
+        this.permissions.add(permission);
+    }
+
+
+    public File[] list() {
+        java.io.File[] realSubFiles = getRealFile().listFiles();
+        File[] subFiles = new File[realSubFiles.length];
+        for (int i = 0; i < realSubFiles.length; i++) {
+            File f = new File();
+            f.setName(realSubFiles[i].getName());
+            f.setParent(this);
+            f.setType(realSubFiles[i].isDirectory() ? Type.DIRECTORY : Type.FILE);
+            // TODO: Quelles permissions?
+            subFiles[i] = f;
+        }
+        return subFiles;
+    }
+
+    public void create() {
+        if (type == Type.DIRECTORY) {
+            getRealFile().mkdir();
+        }
+        else {
+            try {
+                getRealFile().createNewFile();
+            }
+            catch (IOException e) {
+                Log.error("Unable to create a new file: " + e.getMessage());
+            }
+        }
+    }
+
+    public void delete() {
+        if (type == Type.DIRECTORY) {
+            for (File f : list()) {
+                f.delete();
+            }
+        }
+        getRealFile().delete();
+    }
+
+
+    private java.io.File getRealFile() {
+        return new java.io.File(Settings.getInstance().getUploadDir(), path.substring(1) + name);
     }
 }
