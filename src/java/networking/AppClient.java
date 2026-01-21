@@ -6,20 +6,20 @@ import java.net.UnknownHostException;
 import java.net.Socket;
 
 import logging.Log;
-import model.User;
+import model.Peer;
 
 public class AppClient implements Closeable {
 
-    private User target;
+    private Peer target;
     private Socket client;
 
-    public AppClient(User target) {
+    public AppClient(Peer target) {
         this.target = target;
         try {
-            this.client = new Socket(target.getIp(), target.getPort());
+            this.client = new Socket(target.getAddress().getHostAddress(), target.getTcpPort());
         }
         catch (UnknownHostException e) {
-            Log.error(String.format("There is no server on %s:%d", target.getIp(), target.getPort()));
+            Log.error(String.format("There is no server on %s:%d", target.getAddress().getHostAddress(), target.getTcpPort()));
         }
         catch (IOException e) {
             Log.error("Error while creating AppClient: " + e.getMessage());
