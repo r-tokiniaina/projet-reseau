@@ -46,6 +46,13 @@ public class AppResponse {
         if (json.has("path")) {
             this.others.put("path", json.get("path").getAsString());
         }
+        if (json.has("checksum")) {
+            this.others.put("checksum", json.get("checksum").getAsString());
+        }
+
+        if (json.has("size")) {
+            this.others.put("size", json.get("size").getAsNumber());
+        }
 
         if (json.has("files")) {
             File parent = new File((String) this.others.get("path"), File.Type.DIRECTORY);
@@ -100,6 +107,14 @@ public class AppResponse {
 
         if (others.containsKey("path")) {
             json.addProperty("path", (String) others.get("path"));
+        }
+
+        if (others.containsKey("checksum")) {
+            json.addProperty("checksum", (String) others.get("checksum"));
+        }
+
+        if (others.containsKey("size")) {
+            json.addProperty("size", (Number) others.get("size"));
         }
 
         if (others.containsKey("files")) {

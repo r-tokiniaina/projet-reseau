@@ -27,7 +27,14 @@ public class AppRequest {
         if (json.has("path")) {
             this.others.put("path", json.get("path").getAsString());
         }
-        // TODO: ajouter les autres attributs dans others
+
+        if (json.has("checksum")) {
+            this.others.put("checksum", json.get("checksum").getAsString());
+        }
+
+        if (json.has("size")) {
+            this.others.put("size", json.get("size").getAsNumber());
+        }
     }
 
 
@@ -59,6 +66,14 @@ public class AppRequest {
 
         if (others.containsKey("path")) {
             json.addProperty("path", (String) others.get("path"));
+        }
+
+        if (others.containsKey("checksum")) {
+            json.addProperty("checksum", (String) others.get("checksum"));
+        }
+
+        if (others.containsKey("size")) {
+            json.addProperty("size", (Number) others.get("size"));
         }
 
         return json;

@@ -1,7 +1,11 @@
 package networking;
 
 import java.io.Closeable;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.net.UnknownHostException;
 import java.net.Socket;
 import java.util.List;
@@ -9,6 +13,7 @@ import java.util.List;
 import logging.Log;
 import model.File;
 import model.Peer;
+import utils.FileUtils;
 
 public class AppClient implements Closeable {
 
@@ -35,59 +40,79 @@ public class AppClient implements Closeable {
     }
 
 
-    public Object sendRequest(AppRequest request) throws IOException {
-        if (request.getCommand().equals("LIST")) {
-            return handleListRequest(request);
-        }
-        else if (request.getCommand().equals("DELETE")) {
-            return handleDeleteRequest(request);
-        }
-        else if (request.getCommand().equals("CREATE")) {
-            return handleCreateRequest(request);
-        }
-        else if (request.getCommand().equals("UPLOAD")) {
-            return handleUploadRequest(request);
-        }
-        else if (request.getCommand().equals("DOWNLOAD")) {
-            return handleDownloadRequest(request);
-        }
-
-        Log.error("Unknown command: " + request.getCommand());
-        return null;
-    }
-
     @SuppressWarnings("unchecked")
-    private Object handleListRequest(AppRequest request) throws IOException {
+    public List<File> sendListRequest(File file) throws IOException {
+        AppRequest request = new AppRequest();
+        request.setCommand("LIST");
+        request.set("path", file.getPath() + file.getName());
+
         AppProtocol.writeRequest(client, request);
         AppResponse response = AppProtocol.readResponse(client);
 
         return (List<File>) response.get("files");
     }
 
-    private Object handleDeleteRequest(AppRequest request) throws IOException {
+    public void sendDeleteRequest(File file) throws IOException {
+        AppRequest request = new AppRequest();
+        request.setCommand("DELETE");
+        request.set("path", file.getPath() + file.getName());
+
         AppProtocol.writeRequest(client, request);
         AppResponse response = AppProtocol.readResponse(client);
-
-        return null;
     }
 
-    private Object handleCreateRequest(AppRequest request) throws IOException {
+    public void sendCreateRequest(File file) throws IOException {
+        AppRequest request = new AppRequest();
+        request.setCommand("CREATE");
+        request.set("path", file.getPath() + file.getName());
+
         AppProtocol.writeRequest(client, request);
         AppResponse response = AppProtocol.readResponse(client);
-
-        return null;
     }
 
-    private Object handleUploadRequest(AppRequest request) throws IOException {
+    public void sendUploadRequest(java.io.File source, File dest) throws IOException {
+        AppRequest request = new AppRequest();
+        request.setCommand("UPLOAD");
+        request.set("path", dest.getPath() + dest.getName());
+        request.set("checksum", FileUtils.computeChecksum(source));
+        request.set("size", source.length());
+
         AppProtocol.writeRequest(client, request);
         AppResponse response = AppProtocol.readResponse(client);
 
-        return null;
+        if (response.getResponse().equals("WAITING")) {
+            try (InputStream in = new FileInputStream(source)) {
+                AppProtocol.writeTo(in, client);
+            }
+
+            response = AppProtocol.readResponse(client);
+        }
     }
 
-    private Object handleDownloadRequest(AppRequest request) throws IOException {
+    public java.io.File sendDownloadRequest(File file) throws IOException {
+        AppRequest request = new AppRequest();
+        request.setCommand("DOWNLOAD");
+        request.set("path", file.getPath() + file.getName());
+
         AppProtocol.writeRequest(client, request);
         AppResponse response = AppProtocol.readResponse(client);
+
+        if (response.getResponse().equals("SENDING")) {
+            String checksum = (String) response.get("checksum");
+            Number size = (Number) response.get("size");
+
+            java.io.File dest = new java.io.File(System.getProperty("user.home") + "/Téléchargements", file.getName());
+
+            try (OutputStream out = new FileOutputStream(dest)) {
+                AppProtocol.writeTo(client, out, size.longValue());
+            }
+
+            response = new AppResponse(response);
+            response.setResponse("SUCCESS");
+            AppProtocol.writeResponse(client, response);
+
+            return dest;
+        }
 
         return null;
     }

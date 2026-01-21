@@ -1,6 +1,8 @@
 package networking;
 
 import java.io.Closeable;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -123,14 +125,41 @@ public class AppServer implements Runnable, Closeable {
     }
 
     private void handleUploadRequest(Socket client, AppRequest request) throws IOException {
+        String path = (String) request.get("path");
+        String checksum = (String) request.get("checksum");
+        Number size = (Number) request.get("size");
+
+        File file = new File(path, File.Type.FILE);
+        file.create();
+
         AppResponse response = new AppResponse(request);
-        response.setResponse("ERROR");
+        response.setResponse("WAITING");
+        AppProtocol.writeResponse(client, response);
+
+        try (OutputStream out = file.getOutputStream()) {
+            AppProtocol.writeTo(client, out, size.longValue());
+        }
+
+        response = new AppResponse(response);
+        response.setResponse("SUCCESS");
         AppProtocol.writeResponse(client, response);
     }
 
     private void handleDownloadRequest(Socket client, AppRequest request) throws IOException {
+        String path = (String) request.get("path");
+
+        File file = new File(path, File.Type.FILE);
+
         AppResponse response = new AppResponse(request);
-        response.setResponse("ERROR");
+        response.setResponse("SENDING");
+        response.set("checksum", file.computeChecksum());
+        response.set("size", file.length());
         AppProtocol.writeResponse(client, response);
+
+        try (InputStream in = file.getInputStream()) {
+            AppProtocol.writeTo(in, client);
+        }
+
+        response = AppProtocol.readResponse(client);
     }
 }

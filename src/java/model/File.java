@@ -1,10 +1,17 @@
 package model;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
 import java.util.HashSet;
 import java.util.Set;
 
 import logging.Log;
+import utils.FileUtils;
 
 public class File {
 
@@ -124,6 +131,25 @@ public class File {
             }
         }
         getRealFile().delete();
+    }
+
+
+    public String computeChecksum() throws IOException {
+        return FileUtils.computeChecksum(getRealFile());
+    }
+
+
+    public long length() {
+        return getRealFile().length();
+    }
+
+
+    public InputStream getInputStream() throws IOException {
+        return new BufferedInputStream(new FileInputStream(getRealFile()));
+    }
+
+    public OutputStream getOutputStream() throws IOException {
+        return new BufferedOutputStream(new FileOutputStream(getRealFile()));
     }
 
 
