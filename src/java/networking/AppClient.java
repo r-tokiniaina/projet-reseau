@@ -4,8 +4,10 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.net.UnknownHostException;
 import java.net.Socket;
+import java.util.List;
 
 import logging.Log;
+import model.File;
 import model.Peer;
 
 public class AppClient implements Closeable {
@@ -37,15 +39,56 @@ public class AppClient implements Closeable {
         if (request.getCommand().equals("LIST")) {
             return handleListRequest(request);
         }
+        else if (request.getCommand().equals("DELETE")) {
+            return handleDeleteRequest(request);
+        }
+        else if (request.getCommand().equals("CREATE")) {
+            return handleCreateRequest(request);
+        }
+        else if (request.getCommand().equals("UPLOAD")) {
+            return handleUploadRequest(request);
+        }
+        else if (request.getCommand().equals("DOWNLOAD")) {
+            return handleDownloadRequest(request);
+        }
 
         Log.error("Unknown command: " + request.getCommand());
         return null;
     }
 
+    @SuppressWarnings("unchecked")
     private Object handleListRequest(AppRequest request) throws IOException {
         AppProtocol.writeRequest(client, request);
         AppResponse response = AppProtocol.readResponse(client);
 
-        return response;
+        return (List<File>) response.get("files");
+    }
+
+    private Object handleDeleteRequest(AppRequest request) throws IOException {
+        AppProtocol.writeRequest(client, request);
+        AppResponse response = AppProtocol.readResponse(client);
+
+        return null;
+    }
+
+    private Object handleCreateRequest(AppRequest request) throws IOException {
+        AppProtocol.writeRequest(client, request);
+        AppResponse response = AppProtocol.readResponse(client);
+
+        return null;
+    }
+
+    private Object handleUploadRequest(AppRequest request) throws IOException {
+        AppProtocol.writeRequest(client, request);
+        AppResponse response = AppProtocol.readResponse(client);
+
+        return null;
+    }
+
+    private Object handleDownloadRequest(AppRequest request) throws IOException {
+        AppProtocol.writeRequest(client, request);
+        AppResponse response = AppProtocol.readResponse(client);
+
+        return null;
     }
 }
