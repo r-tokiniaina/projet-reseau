@@ -28,6 +28,14 @@ public class File {
         addPermission(Permission.DELETE);
     }
 
+    public File(String path) {
+        this();
+        int lastSlash = path.lastIndexOf("/");
+        this.name = path.substring(lastSlash + 1);
+        this.path = path.substring(0, lastSlash + 1);
+        this.type = getRealFile().isDirectory() ? Type.DIRECTORY : Type.FILE;
+    }
+
     public File(String path, Type type) {
         this();
         int lastSlash = path.lastIndexOf("/");
