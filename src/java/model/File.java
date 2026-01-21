@@ -23,6 +23,17 @@ public class File {
         this.parent = null;
         this.type = Type.DIRECTORY;
         this.permissions = new HashSet<>();
+        addPermission(Permission.READ);
+        addPermission(Permission.WRITE);
+        addPermission(Permission.DELETE);
+    }
+
+    public File(String path, Type type) {
+        this();
+        int lastSlash = path.lastIndexOf("/");
+        this.name = path.substring(lastSlash + 1);
+        this.path = path.substring(0, lastSlash + 1);
+        this.type = type;
     }
 
     public String getName() {
@@ -79,7 +90,6 @@ public class File {
             f.setName(realSubFiles[i].getName());
             f.setParent(this);
             f.setType(realSubFiles[i].isDirectory() ? Type.DIRECTORY : Type.FILE);
-            // TODO: Quelles permissions?
             subFiles[i] = f;
         }
         return subFiles;
