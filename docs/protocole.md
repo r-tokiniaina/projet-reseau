@@ -134,7 +134,8 @@ Un utilisateur envoye à un utilisateur cible :
 {
   "command": "UPLOAD",
   "path": "/path/vers/futur/fichier",
-  "checksum": "a1b2c3d4e5f67890"
+  "checksum": "a1b2c3d4e5f67890",
+  "size": 2048000
 }
 ```
 
@@ -180,8 +181,7 @@ Un utilisateur envoye à un utilisateur cible :
 ```json
 {
   "command": "DOWNLOAD",
-  "path": "/path/vers/fichier/a/telecharger",
-  "checksum": "a1b2c3d4e5f67890"
+  "path": "/path/vers/fichier/a/telecharger"
 }
 ```
 
@@ -189,7 +189,8 @@ Le cible répond :
 ```json
 {
   "response": "SENDING",
-  "checksum": "a1b2c3d4e5f67890"
+  "checksum": "a1b2c3d4e5f67890",
+  "size": 2048000
 }
 ```
 ou :
