@@ -107,7 +107,7 @@ public class AppClient implements Closeable {
                 AppProtocol.writeTo(client, out, size.longValue());
             }
 
-            response = new AppResponse(response);
+            response = new AppResponse();
             response.setResponse("SUCCESS");
             AppProtocol.writeResponse(client, response);
 

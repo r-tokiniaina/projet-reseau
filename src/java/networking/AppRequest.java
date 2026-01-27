@@ -9,19 +9,16 @@ import com.google.gson.JsonObject;
 public class AppRequest {
 
     private String command;
-    private long requestId;
     private Map<String, Object> others;
 
 
     public AppRequest() {
         this.command = null;
-        this.requestId = new Random().nextLong();
         this.others = new HashMap<>();
     }
 
     public AppRequest(JsonObject json) {
         this.command = json.get("command").getAsString();
-        this.requestId = json.get("request-id").getAsLong();
         this.others = new HashMap<>();
 
         if (json.has("path")) {
@@ -46,10 +43,6 @@ public class AppRequest {
         this.command = command;
     }
 
-    public long getRequestId() {
-        return requestId;
-    }
-
     public Object get(String key) {
         return others.get(key);
     }
@@ -62,7 +55,6 @@ public class AppRequest {
     public JsonObject toJson() {
         JsonObject json = new JsonObject();
         json.addProperty("command", command);
-        json.addProperty("request-id", requestId);
 
         if (others.containsKey("path")) {
             json.addProperty("path", (String) others.get("path"));

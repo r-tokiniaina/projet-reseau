@@ -97,7 +97,7 @@ public class AppServer implements Runnable, Closeable {
         File file = new File(path, File.Type.DIRECTORY);
         List<File> files = Arrays.asList(file.list());
 
-        AppResponse response = new AppResponse(request);
+        AppResponse response = new AppResponse();
         response.setResponse("SUCCESS");
         response.set("path", path);
         response.set("files", files);
@@ -109,7 +109,7 @@ public class AppServer implements Runnable, Closeable {
         File file = new File(path);
         file.delete();
 
-        AppResponse response = new AppResponse(request);
+        AppResponse response = new AppResponse();
         response.setResponse("SUCCESS");
         AppProtocol.writeResponse(client, response);
     }
@@ -119,7 +119,7 @@ public class AppServer implements Runnable, Closeable {
         File file = new File(path, File.Type.DIRECTORY);
         file.create();
 
-        AppResponse response = new AppResponse(request);
+        AppResponse response = new AppResponse();
         response.setResponse("SUCCESS");
         AppProtocol.writeResponse(client, response);
     }
@@ -132,7 +132,7 @@ public class AppServer implements Runnable, Closeable {
         File file = new File(path, File.Type.FILE);
         file.create();
 
-        AppResponse response = new AppResponse(request);
+        AppResponse response = new AppResponse();
         response.setResponse("WAITING");
         AppProtocol.writeResponse(client, response);
 
@@ -140,7 +140,7 @@ public class AppServer implements Runnable, Closeable {
             AppProtocol.writeTo(client, out, size.longValue());
         }
 
-        response = new AppResponse(response);
+        response = new AppResponse();
         response.setResponse("SUCCESS");
         AppProtocol.writeResponse(client, response);
     }
@@ -150,7 +150,7 @@ public class AppServer implements Runnable, Closeable {
 
         File file = new File(path, File.Type.FILE);
 
-        AppResponse response = new AppResponse(request);
+        AppResponse response = new AppResponse();
         response.setResponse("SENDING");
         response.set("checksum", file.computeChecksum());
         response.set("size", file.length());
