@@ -7,13 +7,6 @@ Pour simplifier la suite, on appellera **utilisateur**, chaque ordinateur sur le
 tous capables d’envoyer/recevoir des requêtes et des réponses. Ils sont identifiés par le couple
 **IP:PORT**, récupéré lors de la réception du socket.
 
-
-## Principe
-Toutes les requêtes sont associées à un identifiant (`request-id`).
-Toutes les réponses sont associées à un identifiant (`response-id`), et doivent aussi préciser
-le `request-id` de la requête à répondre.
-L’identifiant est un nombre aléatoire (l’unicité n’est pas nécessaire).
-
 Les permissions sont:
 - `r`: (_read_) ouvrir/télécharger
 - `w`: (_write_) téléverser
@@ -27,8 +20,7 @@ Les permissions sont:
 Un utilisateur envoye cette requête à tous les ordinateurs sur le réseau actuel.
 ```json
 {
-  "command": "CONNECT",
-  "request-id": 1234567890
+  "command": "CONNECT"
 }
 ```
 
@@ -36,9 +28,7 @@ Chaque ordinateur qui ont reçu (et compris) la requête précédente répond 
 ```json
 {
   "response": "CONNECTED",
-  "name": "Nom de l’utilisateur",
-  "request-id": 1234567890,
-  "response-id": 1244458147
+  "name": "Nom de l’utilisateur"
 }
 ```
 
@@ -50,8 +40,7 @@ Un utilisateur envoye à un utilisateur cible :
 ```json
 {
   "command": "LIST",
-  "path": "/path/vers/dossier",
-  "request-id": 1241474395389
+  "path": "/path/vers/dossier"
 }
 ```
 
@@ -63,9 +52,7 @@ Le cible répond :
   "files": [
     { "name": "fichier1.txt", "type": "file", "permission": "rwd" },
     { "name": "fichier2.txt", "type": "file", "permission": "rwd" }
-  ],
-  "request-id": 1241474395389,
-  "response-id": 73219846345
+  ]
 }
 ```
 
@@ -73,9 +60,7 @@ Si la permission `r` n’est pas définie :
 ```json
 {
   "response": "ERROR",
-  "error": "No read permission",
-  "request-id": 1241474395389,
-  "response-id": 73219846345
+  "error": "No read permission"
 }
 ```
 
@@ -83,9 +68,7 @@ Si le nom indiqué n’est pas un répertoire :
 ```json
 {
   "response": "ERROR",
-  "error": "Unknown directory",
-  "request-id": 1241474395389,
-  "response-id": 73219846345
+  "error": "Unknown directory"
 }
 ```
 
@@ -94,17 +77,14 @@ Un utilisateur envoye à un utilisateur cible :
 ```json
 {
   "command": "DELETE",
-  "path": "/path/vers/fichier/ou/dossier",
-  "request-id": 72462873498325
+  "path": "/path/vers/fichier/ou/dossier"
 }
 ```
 
 Le cible répond :
 ```json
 {
-  "response": "SUCCESS",
-  "request-id": 72462873498325,
-  "response-id": 481749364189
+  "response": "SUCCESS"
 }
 ```
 
@@ -112,9 +92,7 @@ Si la permission `d` n’est pas définie :
 ```json
 {
   "response": "ERROR",
-  "error": "No delete permission",
-  "request-id": 72462873498325,
-  "response-id": 481749364189
+  "error": "No delete permission"
 }
 ```
 
@@ -122,9 +100,7 @@ Si le nom indiqué n’est ni un fichier, ni un répertoire :
 ```json
 {
   "response": "ERROR",
-  "error": "Unknown file or directory",
-  "request-id": 72462873498325,
-  "response-id": 481749364189
+  "error": "Unknown file or directory"
 }
 ```
 
@@ -133,17 +109,14 @@ Un utilisateur envoye à un utilisateur cible :
 ```json
 {
   "command": "CREATE",
-  "path": "/path/vers/nouveau/dossier",
-  "request-id": 72462873498325
+  "path": "/path/vers/nouveau/dossier"
 }
 ```
 
 Le cible répond :
 ```json
 {
-  "response": "SUCCESS",
-  "request-id": 72462873498325,
-  "response-id": 481749364189
+  "response": "SUCCESS"
 }
 ```
 
@@ -151,9 +124,7 @@ Si la permission `w` n’est pas définie :
 ```json
 {
   "response": "ERROR",
-  "error": "No write permission",
-  "request-id": 72462873498325,
-  "response-id": 481749364189
+  "error": "No write permission"
 }
 ```
 
@@ -163,67 +134,46 @@ Un utilisateur envoye à un utilisateur cible :
 {
   "command": "UPLOAD",
   "path": "/path/vers/futur/fichier",
-  "checksum": "a1b2c3d4e5f67890",
-  "request-id": 479812643873
+  "checksum": "a1b2c3d4e5f67890"
 }
 ```
 
 Le cible répond :
 ```json
 {
-  "response": "WAITING",
-  "request-id": 479812643873,
-  "response-id": 4714632788426
+  "response": "WAITING"
 }
 ```
 ou :
 ```json
 {
   "response": "ERROR",
-  "error": "No write permission",
-  "request-id": 479812643873,
-  "response-id": 4714632788426
+  "error": "No write permission"
 }
 ```
 ou :
 ```json
 {
   "response": "ERROR",
-  "error": "Unvalid path specified",
-  "request-id": 479812643873,
-  "response-id": 4714632788426
+  "error": "Unvalid path specified"
 }
 ```
 
-S’il n’y a pas d’erreur, l’utilisateur répond :
-```json
-{
-  "response": "SENDING",
-  "data": "plein de données binaires ici",
-  "request-id": 479812643873,
-  "response-id": 4714632788426
-}
-```
+S’il n’y a pas d’erreur, l’utilisateur envoie les binaires du fichier.
 
 Le cible répond :
 ```json
 {
-  "response": "SUCCESS",
-  "request-id": 479812643873,
-  "response-id": 4714632788426
+  "response": "SUCCESS"
 }
 ```
 ou :
 ```json
 {
   "response": "ERROR",
-  "error": "Corrupted file",
-  "request-id": 479812643873,
-  "response-id": 4714632788426
+  "error": "Corrupted file"
 }
 ```
-
-En cas d’erreur, l’utilisateur peut renvoyer le fichier avec les mêmes `request-id` et `response-id`.
 
 ### Téléchargement d’un fichier
 Un utilisateur envoye à un utilisateur cible :
@@ -231,8 +181,7 @@ Un utilisateur envoye à un utilisateur cible :
 {
   "command": "DOWNLOAD",
   "path": "/path/vers/fichier/a/telecharger",
-  "checksum": "a1b2c3d4e5f67890",
-  "request-id": 954282765243
+  "checksum": "a1b2c3d4e5f67890"
 }
 ```
 
@@ -240,55 +189,35 @@ Le cible répond :
 ```json
 {
   "response": "SENDING",
-  "checksum": "a1b2c3d4e5f67890",
-  "request-id": 954282765243,
-  "response-id": 4817483674626
+  "checksum": "a1b2c3d4e5f67890"
 }
 ```
 ou :
 ```json
 {
   "response": "ERROR",
-  "error": "No read permission",
-  "request-id": 954282765243,
-  "response-id": 4817483674626
+  "error": "No read permission"
 }
 ```
 
 L’utilisateur répond :
 ```json
 {
-  "response": "WAITING",
-  "request-id": 954282765243,
-  "response-id": 4817483674626
+  "response": "WAITING"
 }
 ```
-Le cible répond :
-```json
-{
-  "response": "SENDING",
-  "data": "plein de données binaires ici",
-  "request-id": 954282765243,
-  "response-id": 4817483674626
-}
-```
+Le cible envoie les binaires du fichier.
 
 L’utilisateur répond :
 ```json
 {
-  "response": "SUCCESS",
-  "request-id": 954282765243,
-  "response-id": 4817483674626
+  "response": "SUCCESS"
 }
 ```
 ou :
 ```json
 {
   "response": "ERROR",
-  "error": "Corrupted file",
-  "request-id": 954282765243,
-  "response-id": 4817483674626
+  "error": "Corrupted file"
 }
 ```
-
-En cas d’erreur, le cible peut renvoyer le fichier avec les mêmes `request-id` et `response-id`.
