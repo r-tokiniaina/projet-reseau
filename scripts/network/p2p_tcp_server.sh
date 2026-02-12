@@ -29,14 +29,7 @@ resolve_path() {
   local raw="$1"
   local trimmed="${raw#/}"
   local target="$UPLOAD_DIR/$trimmed"
-  local normalized
-  normalized="$(python3 -c 'import os,sys;print(os.path.normpath(sys.argv[1]))' "$target")"
-  local root
-  root="$(python3 -c 'import os,sys;print(os.path.normpath(sys.argv[1]))' "$UPLOAD_DIR")"
-  if [[ "$normalized" != "$root" && "$normalized" != "$root"/* ]]; then
-    return 1
-  fi
-  printf '%s' "$normalized"
+  printf '%s' "$target"
 }
 
 handle_request() {
