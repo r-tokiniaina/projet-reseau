@@ -1,4 +1,4 @@
-package gui;
+package p2pshare.gui;
 
 import java.util.List;
 import javax.swing.*;
@@ -6,11 +6,11 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 
-import model.File;
+import p2pshare.model.RemoteFile;
 import p2pshare.App;
 import p2pshare.model.Peer;
 
-public class Page extends JFrame {
+public class FileBrowserPanel extends JFrame {
 
     private App app;
     private Peer peer;
@@ -18,7 +18,7 @@ public class Page extends JFrame {
     private JList<String> sideBar;
     private JTable fileTable;
 
-    public Page(App app, Peer peer) {
+    public FileBrowserPanel(App app, Peer peer) {
         this.app = app;
         this.peer = peer;
 
@@ -193,15 +193,15 @@ public class Page extends JFrame {
     }
 
     private void update(String path) {
-        List<File> filesAndDirs = app.listFichiers(peer, path);
-        List<File> files = filesAndDirs.stream().filter(f -> f.getType().equals(File.Type.FILE)).toList();
-        List<File> dirs = filesAndDirs.stream().filter(f -> f.getType().equals(File.Type.DIRECTORY)).toList();
+        List<RemoteFile> filesAndDirs = app.listFichiers(peer, path);
+        List<RemoteFile> files = filesAndDirs.stream().filter(f -> f.getType().equals(RemoteFile.Type.FILE)).toList();
+        List<RemoteFile> dirs = filesAndDirs.stream().filter(f -> f.getType().equals(RemoteFile.Type.DIRECTORY)).toList();
 
         pathField.setText(path);
 
         DefaultListModel<String> dirModel = (DefaultListModel<String>) sideBar.getModel();
         dirModel.clear();
-        for (File d : dirs)
+        for (RemoteFile d : dirs)
             dirModel.addElement("📁 " + d.getName());
 
         sideBar.addListSelectionListener(e -> {
@@ -219,7 +219,7 @@ public class Page extends JFrame {
 
         DefaultTableModel fileModel = (DefaultTableModel) fileTable.getModel();
         fileModel.setRowCount(0);
-        for (File f : files)
+        for (RemoteFile f : files)
             fileModel.addRow( new Object[] { f.getName(), "-", "-", "-" });
     }
 

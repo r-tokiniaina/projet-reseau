@@ -2,17 +2,17 @@ package p2pshare;
 
 import p2pshare.config.AppConfig;
 import p2pshare.network.udp.UdpDiscoveryService;
+import p2pshare.network.tcp.TcpServer;
+import p2pshare.network.tcp.TcpClient;
 import p2pshare.model.Peer;
-import networking.AppServer;
-import networking.AppClient;
-import model.File;
+import p2pshare.model.RemoteFile;
 
 import java.util.List;
 import java.util.ArrayList;
 
 public class App {
     private UdpDiscoveryService udpService;
-    private AppServer tcpServer;
+    private TcpServer tcpServer;
     private Thread serverThread;
     private boolean isRunning;
     private static App instance;
@@ -36,13 +36,13 @@ public class App {
         // Démarrer UDP Discovery
         udpService = new UdpDiscoveryService();
         udpService.start();
-        System.out.println("✓ UDP Discovery started (port: " + p2pshare.config.AppConfig.UDP_PORT + ")");
+        System.out.println("✓ UDP Discovery started (port: " + AppConfig.UDP_PORT + ")");
 
         // Démarrer TCP Server
-        tcpServer = new AppServer();
+        tcpServer = new TcpServer();
         serverThread = new Thread(tcpServer);
         serverThread.start();
-        System.out.println("✓ TCP Server started (port: " + p2pshare.config.AppConfig.TCP_PORT + ")");
+        System.out.println("✓ TCP Server started (port: " + AppConfig.TCP_PORT + ")");
 
         // Attendre un peu pour que le serveur démarre
         Thread.sleep(1000);
@@ -84,11 +84,6 @@ public class App {
 
         isRunning = false;
         System.out.println("✓ Application stopped");
-    }
-
-    // Méthode utilitaire pour convertir entre les deux types de Peer
-    private model.Peer convertPeer(p2pshare.model.Peer udpPeer) {
-        return new model.Peer(udpPeer.getName(), udpPeer.getAddress(), udpPeer.getTcpPort());
     }
 
     public String listerPairs() {
@@ -138,9 +133,9 @@ public class App {
             chemin = chemin + "/";
         }
 
-        try (AppClient client = new AppClient(convertPeer(peer))) {
-            File dossier = new File(chemin, File.Type.DIRECTORY);
-            List<File> fichiers = client.sendListRequest(dossier);
+        try (TcpClient client = new TcpClient(peer)) {
+            RemoteFile dossier = new RemoteFile(chemin, RemoteFile.Type.DIRECTORY);
+            List<RemoteFile> fichiers = client.sendListRequest(dossier);
 
             if (fichiers.isEmpty()) {
                 return "Empty directory: " + chemin + "\n";
@@ -149,8 +144,8 @@ public class App {
             StringBuilder sb = new StringBuilder();
             sb.append("=== FILES ON ").append(ip).append(":").append(chemin).append(" ===\n");
 
-            for (File fichier : fichiers) {
-                String type = fichier.getType() == File.Type.FILE ? "[FILE]" : "[DIR]";
+            for (RemoteFile fichier : fichiers) {
+                String type = fichier.getType() == RemoteFile.Type.FILE ? "[FILE]" : "[DIR]";
                 sb.append(type).append(" ").append(fichier.getName()).append("\n");
             }
 
@@ -161,10 +156,10 @@ public class App {
         }
     }
 
-    public List<File> listFichiers(Peer peer, String chemin) {
-        try (AppClient client = new AppClient(convertPeer(peer))) {
-            File dossier = new File(chemin, File.Type.DIRECTORY);
-            List<File> fichiers = client.sendListRequest(dossier);
+    public List<RemoteFile> listFichiers(Peer peer, String chemin) {
+        try (TcpClient client = new TcpClient(peer)) {
+            RemoteFile dossier = new RemoteFile(chemin, RemoteFile.Type.DIRECTORY);
+            List<RemoteFile> fichiers = client.sendListRequest(dossier);
             return fichiers;
         } catch (Exception e) {
             System.out.println("Error: " + e.getMessage());
@@ -173,10 +168,10 @@ public class App {
     }
 
     public String supprimerFichier(Peer peer, String chemin) {
-        try (AppClient client = new AppClient(convertPeer(peer))) {
-            File fichier = new File(chemin, File.Type.FILE);
+        try (TcpClient client = new TcpClient(peer)) {
+            RemoteFile fichier = new RemoteFile(chemin, RemoteFile.Type.FILE);
             client.sendDeleteRequest(fichier);
-            return "Success: File " + peer.getAddress() + " -> " + fichier + " deleted\n";
+            return "Success: File " + peer.getAddress() + " -> " + fichier.getName() + " deleted\n";
         } catch (Exception e) {
             return "Error: " + e.getMessage() + "\n";
         }
@@ -197,8 +192,8 @@ public class App {
             cheminDestination = "/" + cheminDestination;
         }
 
-        try (AppClient client = new AppClient(convertPeer(peer))) {
-            File dest = new File(cheminDestination, File.Type.FILE);
+        try (TcpClient client = new TcpClient(peer)) {
+            RemoteFile dest = new RemoteFile(cheminDestination, RemoteFile.Type.FILE);
             client.sendUploadRequest(fichierSource, dest);
             return "Success: File sent to " + ip + " -> " + cheminDestination + "\n";
         } catch (Exception e) {
@@ -216,8 +211,8 @@ public class App {
             cheminDestination = "/" + cheminDestination;
         }
 
-        try (AppClient client = new AppClient(convertPeer(peer))) {
-            File dest = new File(cheminDestination, File.Type.FILE);
+        try (TcpClient client = new TcpClient(peer)) {
+            RemoteFile dest = new RemoteFile(cheminDestination, RemoteFile.Type.FILE);
             client.sendUploadRequest(fichierSource, dest);
             return "Success: File sent to " + peer.getAddress() + " -> " + cheminDestination + "\n";
         } catch (Exception e) {
@@ -235,12 +230,12 @@ public class App {
             cheminFichier = "/" + cheminFichier;
         }
 
-        try (AppClient client = new AppClient(convertPeer(peer))) {
+        try (TcpClient client = new TcpClient(peer)) {
             int lastSlash = cheminFichier.lastIndexOf("/");
             String chemin = cheminFichier.substring(0, lastSlash + 1);
             String nomFichier = cheminFichier.substring(lastSlash + 1);
 
-            File fichierDistant = new File(chemin + nomFichier, File.Type.FILE);
+            RemoteFile fichierDistant = new RemoteFile(chemin + nomFichier, RemoteFile.Type.FILE);
             java.io.File fichierLocal = client.sendDownloadRequest(fichierDistant);
 
             if (fichierLocal != null && fichierLocal.exists()) {
@@ -254,12 +249,12 @@ public class App {
     }
 
     public String telechargerFichier(Peer peer, String cheminFichier) {
-        try (AppClient client = new AppClient(convertPeer(peer))) {
+        try (TcpClient client = new TcpClient(peer)) {
             int lastSlash = cheminFichier.lastIndexOf("/");
             String chemin = cheminFichier.substring(0, lastSlash + 1);
             String nomFichier = cheminFichier.substring(lastSlash + 1);
 
-            File fichierDistant = new File(chemin + nomFichier, File.Type.FILE);
+            RemoteFile fichierDistant = new RemoteFile(chemin + nomFichier, RemoteFile.Type.FILE);
             java.io.File fichierLocal = client.sendDownloadRequest(fichierDistant);
 
             if (fichierLocal != null && fichierLocal.exists()) {

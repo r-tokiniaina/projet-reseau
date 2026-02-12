@@ -1,4 +1,4 @@
-package gui;
+package p2pshare.gui;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -11,7 +11,7 @@ import java.util.List;
 import p2pshare.App;
 import p2pshare.model.Peer;
 
-public class Fenetre extends JFrame {
+public class MainWindow extends JFrame {
 
     private App app;
     private JTextField searchField;
@@ -19,7 +19,7 @@ public class Fenetre extends JFrame {
     private JProgressBar loadingBar;
     private Timer stopLoadingTimer;
 
-    public Fenetre(App app) {
+    public MainWindow(App app) {
         this.app = app;
 
         setTitle("Réseaux");
@@ -155,7 +155,7 @@ public class Fenetre extends JFrame {
         // Actions des boutons du menu
         itemConnect.addActionListener(e -> {
             System.out.println("Connexion à : " + peer.getName());
-            new Page(app, peer).setVisible(true);
+            new FileBrowserPanel(app, peer).setVisible(true);
         });
 
         itemDisconnect.addActionListener(e -> {
