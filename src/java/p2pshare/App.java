@@ -29,28 +29,28 @@ public class App {
     }
 
     public void start() throws Exception {
-    if (isRunning) return;
+        if (isRunning) return;
 
-    System.out.println("=== Starting P2P File Share ===");
+        System.out.println("=== Starting P2P File Share ===");
 
-    // Démarrer UDP Discovery
-    udpService = new UdpDiscoveryService();
-    udpService.start();
-    System.out.println("✓ UDP Discovery started (port: " + p2pshare.config.AppConfig.UDP_PORT + ")");
+        // Démarrer UDP Discovery
+        udpService = new UdpDiscoveryService();
+        udpService.start();
+        System.out.println("✓ UDP Discovery started (port: " + p2pshare.config.AppConfig.UDP_PORT + ")");
 
-    // Démarrer TCP Server
-    tcpServer = new AppServer();
-    serverThread = new Thread(tcpServer);
-    serverThread.start();
-    System.out.println("✓ TCP Server started (port: " + p2pshare.config.AppConfig.TCP_PORT + ")");
+        // Démarrer TCP Server
+        tcpServer = new AppServer();
+        serverThread = new Thread(tcpServer);
+        serverThread.start();
+        System.out.println("✓ TCP Server started (port: " + p2pshare.config.AppConfig.TCP_PORT + ")");
 
-    // Attendre un peu pour que le serveur démarre
-    Thread.sleep(1000);
+        // Attendre un peu pour que le serveur démarre
+        Thread.sleep(1000);
 
-    isRunning = true;
-    System.out.println("✓ Application ready! Waiting for peers...");
-    System.out.println("   (Scanning network silently...)");
-}
+        isRunning = true;
+        System.out.println("✓ Application ready! Waiting for peers...");
+        System.out.println("   (Scanning network silently...)");
+    }
 
     public void stop() {
         if (!isRunning) return;
